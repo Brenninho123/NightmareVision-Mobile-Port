@@ -2,79 +2,161 @@ package mobile.backend;
 
 import sys.FileSystem;
 import sys.io.File;
-import openfl.utils.Assets;
 
-class StorageSystem {
+#if android
+import lime.system.System;
+import lime.utils.Bytes;
+#end
 
-    public static var saveDir:String = getSaveDir();
+class StorageSystem
+{
+    /** Caminho base de armazenamento **/
+    public static var basePath:String = initBasePath();
 
-    // Retorna a pasta de salvamento para Android
-    public static function getSaveDir():String {
-        // Usando o path do app interno em Android
+    /**
+     * Inicializa o diretório seguro
+     */
+    static function initBasePath():String
+    {
         #if android
-        var dir = sys.FileSystem.getUserDirectory() + "/.nightmarevision/";
+        var path = System.applicationStorageDirectory;
+
+        if (!FileSystem.exists(path))
+            FileSystem.createDirectory(path);
+
+        return path;
         #else
-        var dir = sys.FileSystem.getUserDirectory() + "/NightmareVision/";
+        var path = "mobileData/";
+
+        if (!FileSystem.exists(path))
+            FileSystem.createDirectory(path);
+
+        return path;
         #end
-
-        if (!FileSystem.exists(dir)) {
-            FileSystem.createDirectory(dir);
-        }
-        return dir;
     }
 
-    // Salva um arquivo de texto
-    public static function saveText(fileName:String, content:String):Void {
-        var path = saveDir + fileName;
-        try {
+    /**
+     * Retorna caminho completo de um arquivo
+     */
+    public static function getPath(file:String):String
+    {
+        return basePath + "/" + file;
+    }
+
+    /**
+     * Salvar texto
+     */
+    public static function save(file:String, content:String):Void
+    {
+        var path = getPath(file);
+
+        try
+        {
             File.saveContent(path, content);
-        } catch (e:Dynamic) {
-            trace('Error saving file: $path -> $e');
+        }
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem SAVE ERROR: " + e);
         }
     }
 
-    // Lê um arquivo de texto
-    public static function loadText(fileName:String):String {
-        var path = saveDir + fileName;
-        try {
-            if (FileSystem.exists(path)) {
+    /**
+     * Carregar texto
+     */
+    public static function load(file:String):String
+    {
+        var path = getPath(file);
+
+        try
+        {
+            if (FileSystem.exists(path))
                 return File.getContent(path);
-            } else {
-                return "";
-            }
-        } catch (e:Dynamic) {
-            trace('Error loading file: $path -> $e');
-            return "";
+        }
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem LOAD ERROR: " + e);
+        }
+
+        return "";
+    }
+
+    /**
+     * Salvar bytes (útil pra saves binários)
+     */
+    public static function saveBytes(file:String, bytes:Bytes):Void
+    {
+        var path = getPath(file);
+
+        try
+        {
+            File.saveBytes(path, bytes);
+        }
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem SAVE BYTES ERROR: " + e);
         }
     }
 
-    // Verifica se o arquivo existe
-    public static function exists(fileName:String):Bool {
-        return FileSystem.exists(saveDir + fileName);
+    /**
+     * Carregar bytes
+     */
+    public static function loadBytes(file:String):Bytes
+    {
+        var path = getPath(file);
+
+        try
+        {
+            if (FileSystem.exists(path))
+                return File.getBytes(path);
+        }
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem LOAD BYTES ERROR: " + e);
+        }
+
+        return null;
     }
 
-    // Deleta um arquivo
-    public static function delete(fileName:String):Bool {
-        var path = saveDir + fileName;
-        try {
-            if (FileSystem.exists(path)) {
+    /**
+     * Verifica se arquivo existe
+     */
+    public static function exists(file:String):Bool
+    {
+        return FileSystem.exists(getPath(file));
+    }
+
+    /**
+     * Deleta arquivo
+     */
+    public static function delete(file:String):Void
+    {
+        var path = getPath(file);
+
+        try
+        {
+            if (FileSystem.exists(path))
                 FileSystem.deleteFile(path);
-                return true;
-            }
-        } catch (e:Dynamic) {
-            trace('Error deleting file: $path -> $e');
         }
-        return false;
-    }
-
-    // Lista arquivos na pasta de salvamento
-    public static function listFiles():Array<String> {
-        try {
-            return FileSystem.readDirectory(saveDir);
-        } catch (e:Dynamic) {
-            trace('Error listing files in $saveDir -> $e');
-            return [];
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem DELETE ERROR: " + e);
         }
     }
 
+    /**
+     * Lista arquivos da pasta
+     */
+    public static function list():Array<String>
+    {
+        try
+        {
+            return FileSystem.readDirectory(basePath);
+        }
+        catch (e:Dynamic)
+        {
+            trace("StorageSystem LIST ERROR: " + e);
+        }
+
+        return [];
+    }
 }
