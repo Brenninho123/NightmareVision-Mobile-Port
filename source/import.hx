@@ -28,7 +28,7 @@ import hxvlc.flixel.*;
 #end
 
 #if android
-import mobile.$;
+import mobile.*;
 #end
 
 import Init;
