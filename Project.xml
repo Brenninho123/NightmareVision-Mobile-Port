@@ -1,71 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
+
     <!-- ======================== Application Settings ======================== -->
-    <app title="Friday n Fnightfunkin" 
-         file="Friday n Fnightfunkin" 
-         packageName="com.shadowmarion.psychengine" 
-         package="com.shadowmarion.psychengine" 
-         main="Main" 
-         version="0.2.7" 
+    <app title="Friday n Fnightfunkin"
+         file="Friday n Fnightfunkin"
+         packageName="com.shadowmarion.psychengine"
+         package="com.shadowmarion.psychengine"
+         main="Main"
+         version="0.2.7"
          company="ShadowMario" />
 
-    <!-- Unique Application ID -->
     <set name="APP_ID" value="0x0100f6c013bbc000" />
 
-    <!-- LUA RELATIVE DYNAMIC LIB (necessary for Lua) -->
+    <!-- LUA -->
     <haxedef name="LINC_LUA_RELATIVE_DYNAMIC_LIB"/>
 
     <!-- Preloader -->
     <app preloader="flixel.system.FlxPreloader" />
 
-    <!-- SWF Version (needed for Flash fallback, optional) -->
-    <set name="SWF_VERSION" value="11.8" />
-
     <!-- ========================= Window Settings ========================== -->
     <window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
 
-    <!-- Desktop-specific -->
-    <window if="desktop" orientation="landscape" fullscreen="false" resizable="true" vsync="false"/>
+    <!-- Desktop -->
+    <window if="desktop" orientation="landscape" fullscreen="false" resizable="true"/>
 
-    <!-- Mobile-specific -->
+    <!-- Mobile -->
     <window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" resizable="false"/>
 
-    <!-- Switch-specific -->
-    <window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
-
-    <!-- ========================= Path Settings ============================ -->
+    <!-- ========================= Paths ============================ -->
     <classpath name="source" />
     <setenv name="HAXEPATH" value="./"/>
 
-    <set name="BUILD_DIR" value="export/debug" if="debug" />
-    <set name="BUILD_DIR" value="export/release" unless="debug" />
-    <set name="BUILD_DIR" value="export/32bit" if="32bits" />
-    <set name="BUILD_DIR" value="${BUILD_DIR}-tracy" if="FEATURE_DEBUG_TRACY"/>
-    
-    <!-- Android-specific build directories -->
+    <!-- Build dirs -->
+    <set name="BUILD_DIR" value="export/debug" if="debug"/>
+    <set name="BUILD_DIR" value="export/release" unless="debug"/>
     <set name="BUILD_DIR" value="export/android/debug" if="android debug"/>
     <set name="BUILD_DIR" value="export/android/release" if="android release"/>
 
-    <!-- ====================== Engine & Mods Config ======================== -->
+    <!-- ====================== Engine Defines ======================== -->
     <define name="MODS_ALLOWED" if="desktop"/>
     <define name="LUA_ALLOWED" if="cpp"/>
-    <define name="VIDEOS_ALLOWED" if="cpp"/>
-    <define name="DISCORD_ALLOWED" if="cpp"/>
+    <define name="DISCORD_ALLOWED" if="desktop cpp"/>
+    <define name="VIDEOS_ALLOWED" if="desktop cpp"/>
     <define name="ANDROID" if="android"/>
 
     <!-- ============================ Assets ================================ -->
-    <assets path='assets/embeds' rename='assets' embed="true" />
+    <assets path="assets/embeds" rename="assets" embed="true"/>
     <assets path="assets/game" rename="assets"/>
-    <assets path='content' embed='false' if="MODS_ALLOWED"/>
+    <assets path="content" embed="false" if="MODS_ALLOWED"/>
 
-    <!-- OpenAL config desktop -->
+    <!-- OpenAL desktop -->
     <section if="desktop">
         <assets path="projFiles/alsoft.ini" rename="alsoft.ini" type="text" if="windows"/>
         <assets path="projFiles/alsoft.ini" rename="alsoft.conf" type="text" unless="windows"/>
     </section>
 
-    <!-- ============================ Haxe Libraries ======================== -->
-    <!-- Core engine libraries -->
+    <!-- ============================ Libraries ======================== -->
+
+    <!-- Core -->
     <haxelib name="openfl"/>
     <haxelib name="flixel"/>
     <haxelib name="flixel-addons"/>
@@ -73,41 +65,50 @@
     <haxelib name="flxanimate"/>
     <haxelib name="hscript-iris"/>
 
-    <!-- Optional / Extras -->
+    <!-- Desktop extras -->
     <haxelib name="linc_luajit" if="LUA_ALLOWED"/>
     <haxelib name="discord_rpc" if="DISCORD_ALLOWED"/>
     <haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
 
-    <!-- Android-specific libraries -->
-    <haxelib name="extension-androidtools" if="android"/>
-    <haxelib name="extension-videoview" if="android"/>
-    <haxelib name="hxCodec" if="android"/>
+    <!-- Android -->
+    <section if="android">
+        <haxelib name="extension-androidtools"/>
+        <haxelib name="hxCodec"/>
+        <!-- videoview só se realmente usar vídeos -->
+        <!-- <haxelib name="extension-videoview"/> -->
+    </section>
 
     <!-- ============================ Macros ================================ -->
-    <haxeflag name="--macro" value="addMetadata('@:build(funkin.backend.macro.FlxMacro.buildFlxSprite())', 'flixel.FlxSprite')" />
-    <haxeflag name="--macro" value="addMetadata('@:build(funkin.backend.macro.FlxMacro.buildFlxBasic())', 'flixel.FlxBasic')" />
+    <haxeflag name="--macro" value="addMetadata('@:build(funkin.backend.macro.FlxMacro.buildFlxSprite())','flixel.FlxSprite')" />
+    <haxeflag name="--macro" value="addMetadata('@:build(funkin.backend.macro.FlxMacro.buildFlxBasic())','flixel.FlxBasic')" />
     <haxeflag name="--macro" value="include('funkin')" />
     <haxeflag name="--macro" value="include('flixel.addons',true,['flixel.addons.nape.*','flixel.addons.editors.*'])" />
     <haxeflag name="-dce no" />
 
-    <!-- ============================ Haxedefines ============================ -->
+    <!-- ============================ Haxe Defines ============================ -->
     <haxedef name="haxeui_dont_impose_base_class"/>
     <define name="hscriptPos"/>
+
+    <!-- Crash handler desktop -->
     <haxedef name="CRASH_HANDLER" if="desktop release"/>
-    <haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
-    <haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
-    <haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER" />
+    <haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER"/>
+    <haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER"/>
+    <haxedef name="HXCPP_STACK_TRACE" if="CRASH_HANDLER"/>
+
+    <!-- Performance -->
     <haxedef name="NO_PRECOMPILED_HEADERS" if="LUA_ALLOWED"/>
-    <haxedef name="FLX_NO_HEALTH" />
-    <haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
-    <haxedef name="FLX_NO_DEBUG" unless="debug" />
-    <haxedef name="NAPE_RELEASE_BUILD" unless="debug" />
-    <haxedef name="message.reporting" value="pretty" />
+    <haxedef name="FLX_NO_HEALTH"/>
+    <haxedef name="FLX_NO_FOCUS_LOST_SCREEN"/>
+    <haxedef name="FLX_NO_DEBUG" unless="debug"/>
+    <haxedef name="NAPE_RELEASE_BUILD" unless="debug"/>
+
+    <haxedef name="message.reporting" value="pretty"/>
     <haxedef name="no-deprecation-warnings"/>
 
     <!-- ============================ Icons ================================== -->
-    <icon path="projFiles/icon/icon16.png" size='16'/>
-    <icon path="projFiles/icon/icon32.png" size='32'/>
-    <icon path="projFiles/icon/icon64.png" size='64'/>
-    <icon path="projFiles/icon/iconOG.png" />
+    <icon path="projFiles/icon/icon16.png" size="16"/>
+    <icon path="projFiles/icon/icon32.png" size="32"/>
+    <icon path="projFiles/icon/icon64.png" size="64"/>
+    <icon path="projFiles/icon/iconOG.png"/>
+
 </project>
