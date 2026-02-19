@@ -110,9 +110,4 @@
     <icon path="projFiles/icon/icon32.png" size='32'/>
     <icon path="projFiles/icon/icon64.png" size='64'/>
     <icon path="projFiles/icon/iconOG.png" />
-    <!-- Android launcher icon -->
-    <icon path="projFiles/icon/icon128.png" size="128" if="android"/>
-    <icon path="projFiles/icon/icon256.png" size="256" if="android"/>
-    <icon path="projFiles/icon/icon512.png" size="512" if="android"/>
-
 </project>
